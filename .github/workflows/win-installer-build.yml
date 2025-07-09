@@ -1,10 +1,220 @@
-name: Windows Builder
+name: 'Windows Installer Builder'
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 
 
 jobs:
-    build-windows:
-        runs-on: windows-latest
+  ## duplicate from make-test.yml
+  # Check hashes first
+  check-hashes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    name: Check hashes
+    container:
+      image: 'gnuradio/ci:fedora-42-3.10'
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    - name: Add git repo to safe repos
+      run: git config --global --add safe.directory ${GITHUB_WORKSPACE}
+    - name: Run hash fixer on all binding files
+      run: gr-utils/bindtool/scripts/binding-hash-hotfixer.zsh gr-*/python/*/bindings/*.cc gnuradio-runtime/python/gnuradio/gr/bindings/*.cc
+    - name: get changed files
+      run: >
+          git --no-pager diff -z --name-only --
+          > /tmp/hashdiff
+          ; [[ ! -s /tmp/hashdiff ]] && exit 0
+          ; sed -z 's;.*;::error file=&::Hash mismatch in &\n;' /tmp/hashdiff
+          | tr -d '\0'
+          ; exit -1
 
+  # We continue checking C++ formatting. No one gets free CPU cycles if they
+  # can't use clang-format.
+  check-formatting:
+    name: Check C++ Formatting
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v2
+    - uses: DoozyX/clang-format-lint-action@v0.14
+      with:
+        source: '.'
+        extensions: 'h,hpp,cpp,cc,cc.in'
+        clangFormatVersion: 14
+  check-python-formatting:
+    name: Check Python Formatting
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v2
+    - uses: quentinguidee/pep8-action@v1
+      with:
+        # -----------------------------------
+        # UPDATE tox.ini when making changes!
+        arguments: '--max-line-length=120 --ignore E265,E266,E275,E402,E501,E704,E712,E713,E714,E711,E721,E722,E741,W504,W605 --exclude *.yml.py'
+        # -----------------------------------
+  ## end duplication
+  build-windows:
+    # All of these shall depend on the formatting check (needs: check-formatting)
+    needs: [check-hashes, check-formatting, check-python-formatting]
+    runs-on: windows-latest
+    name: Windows Installer (cmake with msbuild)
+    defaults:
+      run:
+        shell: cmd
+    steps:
+    - name: Check environment
+      run: |
+        set
+        dir %SystemDrive%
+    - name: Download and install msbuild
+      run: |
+        powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+          Invoke-WebRequest "https://aka.ms/vs/17/release/vs_buildtools.exe" ^
+          -OutFile "%TEMP%\vs_buildtools.exe" -UseBasicParsing
+        "%TEMP%\vs_buildtools.exe"  --quiet --wait --norestart --noUpdateInstaller ^
+          --add Microsoft.VisualStudio.Workload.VCTools ^
+          --add Microsoft.VisualStudio.ComponentGroup.VC.Tools.142.x86.x64 ^
+          --includeRecommended
+        REM Accept exit code 3010 as success
+        IF %ERRORLEVEL% EQU 3010 EXIT 0
+        set
+    - name: Add msbuild to PATH environment variable
+      if: always()
+      uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-architecture: x64
+        vs-version: 16
+    - name: Export vcvars64 path for 'x64 Native Tools Command Prompt'
+      run: |
+        set
+        where msbuild
+        set msbuild_vcvars64=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat
+        if NOT EXIST "%msbuild_vcvars64%" (^
+           echo ERROR: Could not locate 'vcvars64' batch file at "%msbuild_vcvars64%". This script is intended to be run from a build machine & exit /B 1)
+        echo msbuild_vcvars64=%msbuild_vcvars64%>> %GITHUB_ENV%
+    #- uses: actions/checkout@v4
+    - name: Setup Python 3.12
+      uses: actions/setup-python@v5
+      id: cp312
+      with:
+        python-version: '3.12'
+    - name: Create Python Virtual Environment
+      env:
+        PY_VENV_PATH: ${{ runner.workspace }}\py_venv
+      run: | 
+        echo '${{ steps.cp312.outputs.python-version }}'
+        ${{ steps.cp312.outputs.python-path }} -m pip install virtualenv
+        ${{ steps.cp312.outputs.python-path }} -m venv %PY_VENV_PATH%
+        call %PY_VENV_PATH%\Scripts\activate
+        python -c "import sys;print(sys.path)"
+        echo PY_VENV_PATH=%PY_VENV_PATH%>> %GITHUB_ENV%
+        @rem echo PATH=%PATH%>> %GITHUB_ENV%
+        set RUNNER_WORKSPACE
+        set GITHUB_WORKSPACE
+    - name: Install chocolatey
+      run: |
+        @rem chocolatey should be installed
+        @rem setx chocolateyVersion 1.4.0 /m
+        @rem @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" ^
+        @rem -NoProfile -InputFormat None -ExecutionPolicy Bypass ^
+        @rem -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
+        @rem SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+        choco list
+#    - name: Download and install msbuild via chocolatey
+#      run: |
+#        choco install -y choco install visualstudio2019buildtools ^
+#          --quiet --noUpdateInstaller ^
+#          --add Microsoft.VisualStudio.Workload.VCTools ^
+#          --includeRecommended
+#        type %ChocolateyInstall%\logs\chocolatey.log
+    - name: Install with chocolatey
+      run: |
+        choco list
+        @rem choco install -y doxygen.install --version=1.9.1
+        choco install -y NSIS --version=3.10
+    - name: Install C++ Pkg Mgr - Conan2 via pip
+      run: |
+        python -c "import sys;print(sys.path)"
+        set PY_VENV_PATH
+        call %PY_VENV_PATH%\Scripts\activate
+        python -c "import sys;print(sys.path)"
+        python -m pip install conan
+        conan version
+#    - name: Clone C++ Pkg Mgr - Conan2
+#    
+    # Need to check if GHCUP_MSYS2 can be used
+    - uses: msys2/setup-msys2@v2
+      id: msys2
+      with:
+        update: true
+        MSYSTEM: ucrt64
+    - name: Export environment variable MSYS2_LOCATION
+      env:
+        MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+      run: |
+        set MSYS2_LOCATION
+        set MSYSTEM
+        echo MSYS2_LOCATION=%MSYS2_LOCATION%>> %GITHUB_ENV%
+    #- env:
+    #    MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+    #    MSYSTEM: ucrt64
+    #  run: |
+    #    echo Exporting environment variable MSYS2_LOCATION with value '%MSYS2_LOCATION%'
+    #    echo MSYS2_LOCATION=%MSYS2_LOCATION%>> %GITHUB_ENV%
+    #- name: Clone Qt5 for Windows from git://code.qt.io/qt
+    #  env:
+    #    QT_ROOT_DIR
+    #  run: |
+    #    @echo Using instructions at https://wiki.qt.io/Building_Qt_5_from_Git#Getting_the_source_code
+    - name: Install Qt using jurplel/install-qt-action@v4
+      uses: jurplel/install-qt-action@v4
+        # uses aqt installed into default python to download prebuild qt
+        # extracts to ${{ runner.workspace }}
+        # exports the variables Qt5_DIR, QT_ROOT_DIR, QT_PLUGIN_PATH, QML2_IMPORT_PATH
+      with:
+        aqtversion: '==3.1.*'
+        version: '5.15.2'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2019_64'
+    - name: Clone GVSBuild (to build GTK)
+      uses: actions/checkout@v4
+      with:
+        repository: 'wingtk/gvsbuild'
+        ref: '09028ca09c3f7eef4d7fe935f79cacd2fbb4410f'
+        path: gvsbuild
+        fetch-depth: 2
+    - run: |
+        echo %CD%
+        @rem CD is D:\a\gnuradio\gnuradio
+        set MSYSTEM
+        set MSYS2_LOCATION
+        set Python3_ROOT_DIR
+        set 
+        dir %RUNNER_WORKSPACE%
+        dir
+        cd gvsbuild
+        echo %CD% -- Calling git
+        git checkout HEAD
+        git status
+        echo %CD% -- Done Calling git
+    #
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        path: gnuradio
+    - name: Check environment
+      run: |
+        echo working path=_%CD%_
+        @rem CD was D:\a\gnuradio\gnuradio
+        git status
+        set MSYS2_LOCATION
+        set MSYSTEM
+        set PY_VENV_PATH
+        dir %CD%
+        dir %RUNNER_WORKSPACE%
+        set
 
