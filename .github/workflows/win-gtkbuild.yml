@@ -82,6 +82,10 @@ jobs:
         @echo DEBUG: Python 3.9 via RUNNER_TOOL_CACHE at %RUNNER_TOOL_CACHE%
         dir %RUNNER_TOOL_CACHE%\Python
         @echo DEBUG: NSIS via PATH environment variable
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        path: gnuradio
     - name: Export vcvars64 path for 'x64 Native Tools Command Prompt'
       if: always()
       run: |
@@ -141,32 +145,41 @@ jobs:
         set PATH=%_LOCAL_MY_PATH%
         set PATH
         echo PATH=%PATH%>> %GITHUB_ENV%
-    - name: Setup Python 3.12
-      if: always()
-      uses: actions/setup-python@v5
-      # action installs into RUNNER_TOOL_CACHE and
-      # defines and exports the environment variables pythonLocation, Python_ROOT_DIR, Python2_ROOT_DIR, Python3_ROOT_DIR
-      id: cp312
-      with:
-        python-version: '3.12'
+    #- name: Setup Python 3.12
+    #  if: always()
+    #  uses: actions/setup-python@v5
+    #  # action installs into RUNNER_TOOL_CACHE and
+    #  # defines and exports the environment variables pythonLocation, Python_ROOT_DIR, Python2_ROOT_DIR, Python3_ROOT_DIR
+    #  id: cp312
+    #  with:
+    #    python-version: '3.12'
     - run: |
         set
-    #- name: Create Python Virtual Environment
-    #  env:
-    #    PY_VENV_PATH: ${{ runner.workspace }}\py_venv
-    #  run: | 
-    #    echo '${{ steps.cp312.outputs.python-version }}'
-    #    ${{ steps.cp312.outputs.python-path }} -m pip install virtualenv
-    #    ${{ steps.cp312.outputs.python-path }} -m venv %PY_VENV_PATH%
-    #    call %PY_VENV_PATH%\Scripts\activate
-    #    set pythonLocation=%PY_VENV_PATH%&& set Python_ROOT_DIR=%PY_VENV_PATH%&& set ^
-    #        Python2_ROOT_DIR=%PY_VENV_PATH%&& set Python3_ROOT_DIR=%PY_VENV_PATH%
-    #    python -c "import sys;print(sys.path)"
-    #    echo PY_VENV_PATH=%PY_VENV_PATH%>> %GITHUB_ENV%
-    #    @rem echo PATH=%PATH%>> %GITHUB_ENV%
-    #    set RUNNER_WORKSPACE
-    #    set GITHUB_WORKSPACE
-    #    pip install -r %GITHUB_WORKSPACE%\gnuradio\release\requirements.txt
+        py -0
+    - name: Create Python Virtual Environment
+      env:
+        PY_VENV_PATH: ${{ runner.workspace }}\py_venv
+      run: | 
+        set PY_PYTHON=3.12
+        set PY_PYTHON3=3.12
+        py -0
+        echo PY_PYTHON=%PY_PYTHON%>> %GITHUB_ENV%
+        echo PY_PYTHON3=%PY_PYTHON%>> %GITHUB_ENV%
+        @rem echo '${{ steps.cp312.outputs.python-version }}'
+        @rem ${{ steps.cp312.outputs.python-path }} -m pip install virtualenv
+        py -3.12 -m pip install virtualenv
+        $rem {{ steps.cp312.outputs.python-path }} -m venv %PY_VENV_PATH%
+        py -3.12 -m venv %PY_VENV_PATH%
+        call %PY_VENV_PATH%\Scripts\activate
+        @rem set pythonLocation=%PY_VENV_PATH%&& set Python_ROOT_DIR=%PY_VENV_PATH%&& set ^
+        @rem    Python2_ROOT_DIR=%PY_VENV_PATH%&& set Python3_ROOT_DIR=%PY_VENV_PATH%
+        python -V
+        python -c "import sys;print(sys.path)"
+        echo PY_VENV_PATH=%PY_VENV_PATH%>> %GITHUB_ENV%
+        @rem echo PATH=%PATH%>> %GITHUB_ENV%
+        set RUNNER_WORKSPACE
+        set GITHUB_WORKSPACE
+        pip install -r %GITHUB_WORKSPACE%\gnuradio\release\requirements.txt
     # Need to check if GHCUP_MSYS2 can be used
     #- uses: msys2/setup-msys2@v2
     #  id: msys2
@@ -208,15 +221,21 @@ jobs:
         gtk_build_dir: ${{ runner.workspace }}\gtk-build
         gvsbuild_dir: ${{ github.workspace }}\gvsbuild
       run: |
-        @rem @echo Activate Python venv
-        @rem call %PY_VENV_PATH%\Scripts\activate
+        @echo Activate Python venv
+        call %PY_VENV_PATH%\Scripts\activate
         @rem set pythonLocation=%PY_VENV_PATH%&& set Python_ROOT_DIR=%PY_VENV_PATH%&& set ^
-        @rem     Python2_ROOT_DIR=%PY_VENV_PATH%&& set Python3_ROOT_DIR=%PY_VENV_PATH%
-        @rem python -c "import sys;print(sys.path)"
+             Python2_ROOT_DIR=%PY_VENV_PATH%&& set Python3_ROOT_DIR=%PY_VENV_PATH%
+        @rem echo pythonLocation=%PY_VENV_PATH%>> %GITHUB_ENV%
+        @rem echo Python_ROOT_DIR=%PY_VENV_PATH%>> %GITHUB_ENV%
+        @rem echo Python2_ROOT_DIR=%PY_VENV_PATH%>> %GITHUB_ENV%
+        @rem echo Python3_ROOT_DIR=%PY_VENV_PATH%>> %GITHUB_ENV%
+        python -c "import sys;print(sys.path)"
         @echo Define MSYS2_LOCATION with linux path separators
         call set fps_MSYS2_DIR=%%GHCUP_MSYS2:\=/%%
         set fps_MSYS2_DIR
+        echo fps_MSYS2_DIR=%fps_MSYS2_DIR%>> %GITHUB_ENV%
         set MSYSTEM=UCRT64
+        @rem echo MSYSTEM=%MSYSTEM%>> %GITHUB_ENV%
         @echo Defining a number of environment variables pointing to future locations
         @echo redefining gtk_build_dir from %gtk_build_dir% to C:\gtkbuild
         set gtk_build_dir=%SystemDrive%\gtkbuild
@@ -224,6 +243,7 @@ jobs:
         echo gtk_build_dir=%gtk_build_dir%>> %GITHUB_ENV%
         echo GTK_BUILD_PATH=%gtk_build_dir%>> %GITHUB_ENV%
         set GTK_ROOT=%gtk_build_dir%\gtk\x64\release
+        echo GTK_ROOT=%GTK_ROOT%>> %GITHUB_ENV%
         @rem set INCLUDE=%GTK_ROOT%\include;%GTK_ROOT%\include\cairo;%GTK_ROOT%\include\glib-2.0;%GTK_ROOT%\include\gobject-introspection-1.0;%GTK_ROOT%\lib\glib-2.0\include;%INCLUDE%
         @rem set LIB=%GTK_ROOT%\lib;%LIB%
         set GTK_BIN_DIR=%GTK_ROOT%\bin
@@ -246,19 +266,34 @@ jobs:
         python -m pip install gvsbuild
         @echo TODO specify --vs-ver 17 instead of --vs-ver 16, because gvsbuild assumes --vs-ver 16 is mapped to MSVC 2019 folder
         @echo TODO does not seem to understand the MSVC 2022 can optionally compile with older --vs_ver
-        @rem set gvsbuild_args=build %gtk_version% --configuration release --py-wheel --enable-gi --msys-dir %fps_MSYS2_DIR% --build-dir %gtk_build_dir%  --from-scratch --ninja-opts -j1 --vs-ver 17 --platform x64 --vs-install-path "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools"
+        @rem set gvsbuild_args=build %gtk_version% --configuration release --py-wheel --enable-gi pygobject --msys-dir %fps_MSYS2_DIR% --build-dir %gtk_build_dir%  --from-scratch --ninja-opts -j1 --vs-ver 17 --platform x64 --vs-install-path "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools"
         set
-        set gvsbuild_args=build %gtk_version% --configuration release --py-wheel --enable-gi --msys-dir %fps_MSYS2_DIR% --build-dir %gtk_build_dir% --msbuild-opts /property:RunCodeAnalysis=false --ninja-opts -j1 --vs-ver 17 --platform x64
+        set gvsbuild_args=build %gtk_version% --configuration release --py-wheel --enable-gi pygobject --msys-dir %fps_MSYS2_DIR% --build-dir %gtk_build_dir% --msbuild-opts /property:RunCodeAnalysis=false --ninja-opts -j1 --vs-ver 17 --platform x64
         @echo Calling gvsbuild with arguments '%gvsbuild_args%'
         echo gvsbuild_args=%gvsbuild_args%>> %GITHUB_ENV%
     - name: Build with powershell
       shell: pwsh
       run: |
         $env:gvsbuild_args
-        gvsbuild.exe build gtk3 --configuration release --py-wheel --enable-gi --msys-dir C:/msys64 --build-dir C:\gtkbuild --msbuild-opts /property:RunCodeAnalysis=false --ninja-opts -j1 --vs-ver 17 --platform x64 --log-single --capture-out
+        $env:PY_VENV_PATH
+        & $env:PY_VENV_PATH\Scripts\Activate.ps1
+        $env:VIRTUAL_ENV
+        python -c "import sys;print(sys.path)"
+        pip list
+        $env:Path
+        $env:Path = $env:GTK_BIN_DIR + ';' + $env:Path
+        $env:Path
+        $env:MSYSTEM
+        $env:LIB = $env:GTK_ROOT + "\lib;" + $env:LIB
+        $env:LIB
+        $env:INCLUDE = $env:GTK_ROOT + "\include;" + $env:GTK_ROOT + "\include\cairo;" + $env:GTK_ROOT + "\include\glib-2.0;" + $env:GTK_ROOT + "\include\gobject-introspection-1.0;" + $env:GTK_ROOT + "\lib\glib-2.0\include;" + $env:INCLUDE
+        $env:INCLUDE
+        gvsbuild.exe build gtk3 --configuration release --py-wheel --enable-gi pygobject --msys-dir C:/msys64 --build-dir C:\gtkbuild --msbuild-opts /property:RunCodeAnalysis=false --ninja-opts -j1 --vs-ver 17 --platform x64 --log-single --capture-out
         Get-CimInstance Win32_PageFileUsage | fl *
-    - name: Attempt to install
+    - name: Check logs
+      if: success() || failure()
       run: |
+        set
         type %gtk_build_dir%\logs\gvsbuild-log.txt
         type %gtk_build_dir%\build\gtk\x64\release\stack.propsstack.props
         type %gtk_build_dir%\build\gtk\x64\release\gtk3\_gvsbuild-meson\meson-logs\meson-log.txt
@@ -267,8 +302,16 @@ jobs:
         "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" ^
             -NoProfile -InputFormat None -ExecutionPolicy Bypass ^
             -Command "Get-CimInstance Win32_PageFileUsage | fl *"
+        dir %gtk_build_dir%
+        dir %GTK_ROOT%
+        dir %GTK_ROOT%\python
+    - name: Attempt to install
+      run: |
+        @echo Activate Python venv
+        call %PY_VENV_PATH%\Scripts\activate
         @echo Install pygi
         dir %gtk_build_dir%
+        dir %GTK_ROOT%
         dir %GTK_ROOT%\python
         for %%i in (%GTK_ROOT%\python\PyGObject*.whl) do (pip install --force-reinstall %%i)
         for %%i in (%GTK_ROOT%\python\pycairo*.whl) do (pip install --force-reinstall %%i)
@@ -284,6 +327,9 @@ jobs:
         @rem tar -czf cmake-backup.gzip -C "%RUNNER_WORKSPACE%\cmake-backup" .
         dir %GTK_BUILD_PATH%
         tar -czf gvsbuild-backup.gzip -C "%GTK_BUILD_PATH%" .
+        copy %GTK_BUILD_PATH%\logs\gvsbuild-log.txt .
+        copy %GTK_BUILD_PATH%\build\gtk\x64\release\stack.propsstack.props .
+        copy %GTK_BUILD_PATH%\build\gtk\x64\release\gtk3\_gvsbuild-meson\meson-logs\meson-log.txt .
         @rem robocopy /NJH /NDL /MT /W:5 /R:4 "%GITHUB_WORKSPACE%\gnuradio\build\_CPack_Packages\win64\NSIS" .
         @rem tar -czf gnuradio.gzip -C "%PROGRAMFILES%\GNU Radio" .
         @rem set GR_INSTALL_DIR
