@@ -1,5 +1,4 @@
-# Code was generated with help of Copilot
-name: Consume Artifact
+name: 'Consume Artifact' # Code was generated with help of Copilot
 
 on:
   workflow_dispatch:
