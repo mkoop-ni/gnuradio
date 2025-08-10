@@ -1,10 +1,63 @@
 name: 'Consume Artifact' # Code was generated with help of Copilot
-
 on:
   workflow_dispatch:
 
+
 jobs:
+  ## duplicate from make-test.yml
+  # Check hashes first
+  check-hashes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    name: Check hashes
+    container:
+      image: 'gnuradio/ci:fedora-42-3.10'
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    - name: Add git repo to safe repos
+      run: git config --global --add safe.directory ${GITHUB_WORKSPACE}
+    - name: Run hash fixer on all binding files
+      run: gr-utils/bindtool/scripts/binding-hash-hotfixer.zsh gr-*/python/*/bindings/*.cc gnuradio-runtime/python/gnuradio/gr/bindings/*.cc
+    - name: get changed files
+      run: >
+          git --no-pager diff -z --name-only --
+          > /tmp/hashdiff
+          ; [[ ! -s /tmp/hashdiff ]] && exit 0
+          ; sed -z 's;.*;::error file=&::Hash mismatch in &\n;' /tmp/hashdiff
+          | tr -d '\0'
+          ; exit -1
+
+  # We continue checking C++ formatting. No one gets free CPU cycles if they
+  # can't use clang-format.
+  check-formatting:
+    name: Check C++ Formatting
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v2
+    - uses: DoozyX/clang-format-lint-action@v0.14
+      with:
+        source: '.'
+        extensions: 'h,hpp,cpp,cc,cc.in'
+        clangFormatVersion: 14
+  check-python-formatting:
+    name: Check Python Formatting
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v2
+    - uses: quentinguidee/pep8-action@v1
+      with:
+        # -----------------------------------
+        # UPDATE tox.ini when making changes!
+        arguments: '--max-line-length=120 --ignore E265,E266,E275,E402,E501,E704,E712,E713,E714,E711,E721,E722,E741,W504,W605 --exclude *.yml.py'
+        # -----------------------------------
+  ## end duplication
   download-artifact:
+    needs: [check-hashes, check-formatting, check-python-formatting]
     runs-on: windows-latest
 
     steps:
