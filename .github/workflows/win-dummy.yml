@@ -1,4 +1,4 @@
-name: 'Consume Artifact' # Code was generated with help of Copilot
+name: 'Windows test Builder'
 on:
   workflow_dispatch:
 
@@ -58,7 +58,7 @@ jobs:
   ## end duplication
   download-artifact:
     needs: [check-hashes, check-formatting, check-python-formatting]
-    runs-on: windows-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Get latest successful run ID
