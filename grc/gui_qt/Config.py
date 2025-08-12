@@ -1,7 +1,8 @@
 import os
-from os.path import expanduser, normpath, expandvars, exists
+from os.path import expanduser, normpath, expandvars, exists, join
 from collections import OrderedDict
 
+import Constants
 from ..core.Config import Config as CoreConfig
 from ..main import get_config_file_path
 from qtpy import QtCore
@@ -13,9 +14,8 @@ class Config(CoreConfig):
 
     gui_prefs_file = os.environ.get('GRC_QT_PREFS_PATH', get_config_file_path('grc_qt.conf'))
 
-    def __init__(self, install_prefix, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         CoreConfig.__init__(self, *args, **kwargs)
-        self.install_prefix = install_prefix
         self.qsettings = QtCore.QSettings(self.gui_prefs_file, QtCore.QSettings.IniFormat)
 
     @property
@@ -28,7 +28,7 @@ class Config(CoreConfig):
             self.hier_block_lib_dir,
             os.environ.get('GRC_BLOCKS_PATH', ''),
             self._gr_prefs.get_string('grc', 'local_blocks_path', ''),
-            self._gr_prefs.get_string('grc', 'global_blocks_path', ''),
+            normpath(join(self.install_prefix, Constants.GRC_BLOCKS_DIR)),
             self.qsettings.value('grc/custom_block_paths', ''),
         )
 
