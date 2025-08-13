@@ -281,6 +281,15 @@ else()
     set(GR_PREFSDIR_relative_to_prefix "${GR_PREFSDIR}")
 endif()
 
+message(STATUS "DEBUG STATUS: prefix: ${prefix},
+        GR_CONF_DIR_FULL=${GR_CONF_DIR_FULL},
+        GR_CONF_DIR=${GR_CONF_DIR},
+        SYSCONFIGDIR=${SYSCONFIGDIR},
+        SYSCONFDIR_relative_to_prefix=${SYSCONFDIR_relative_to_prefix},
+        GR_PREFSDIR_FULL=${GR_PREFSDIR_FULL},
+        GR_PREFSDIR=${GR_PREFSDIR},
+        GR_PREFSDIR_relative_to_prefix=${GR_PREFSDIR_relative_to_prefix}")
+
 ########################################################################
 # On Apple only, set install name and use rpath correctly, if not already set
 ########################################################################
