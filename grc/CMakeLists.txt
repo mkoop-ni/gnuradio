@@ -150,6 +150,11 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/core/Constants.py
 @ONLY)
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/core/Constants.py.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/core/Constants.py
+@ONLY)
+
 GR_PYTHON_INSTALL(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/core/Constants.py
     DESTINATION "${GR_PYTHON_DIR}/gnuradio/grc/core"
