@@ -150,10 +150,20 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/core/Constants.py
 @ONLY)
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/core/Constants.py.in
-    ${CMAKE_CURRENT_SOURCE_DIR}/core/Constants.py
-@ONLY)
+# Copy the generated file to source directory for development/testing
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/core/Constants.py
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/core/Constants.py
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_BINARY_DIR}/core/Constants.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/Constants.py
+    COMMENT "Copying generated Constants.py to source directory"
+)
+
+# Create a target to ensure the copy happens
+add_custom_target(copy_constants_to_source ALL
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/core/Constants.py
+)
 
 GR_PYTHON_INSTALL(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/core/Constants.py
