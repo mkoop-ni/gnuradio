@@ -10,6 +10,7 @@ import platform as sys_platform
 from os import path
 
 from grc.core.platform import Platform
+from grc.core import Constants
 
 
 def test_generator():
