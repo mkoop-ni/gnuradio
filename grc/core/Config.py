@@ -41,7 +41,7 @@ class Config(object):
         ]
         if self.install_prefix == "/usr":
             paths_sources.append(normpath(join("/usr/local", Constants.GRC_BLOCKS_DIR)))
-        
+
         collected_paths = sum((paths.split(os.pathsep)
                                for paths in paths_sources), [])
 
