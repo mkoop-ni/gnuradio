@@ -108,10 +108,21 @@ else()
     set(GR_BOOST_REQUIRED "")
 endif()
 
+#set(Boost_USE_STATIC_LIBS   ON)
+#set(Boost_USE_MULTITHREADED ON)
+#set(Boost_USE_STATIC_RUNTIME    OFF)
+
+message("+++++ Boost ${GR_BOOST_MIN_VERSION} ${GR_BOOST_REQUIRED}")
+
 gr_find_package(
     Boost ${GR_BOOST_MIN_VERSION} ${GR_BOOST_REQUIRED}
-    COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
-    OPTIONAL_COMPONENTS unit_test_framework)
+    COMPONENTS ${BOOST_REQUIRED_COMPONENTS} unit_test_framework
+    #OPTIONAL_COMPONENTS unit_test_framework
+    )
+
+message("+++++ Boost include dir: ${Boost_INCLUDE_DIRS}")
+message("+++++ Boost libraries: ${Boost_LIBRARIES}")
+message("+++++ Boost unit test framework found: ${Boost_UNIT_TEST_FRAMEWORK_FOUND}")
 
 # Boost 1.52 disabled, see https://svn.boost.org/trac/boost/ticket/7669
 # Similar problems with Boost 1.46 and 1.47.

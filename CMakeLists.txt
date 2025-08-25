@@ -62,12 +62,59 @@ include(GrMinReq)
 # Do this before enabling testing support, as it depends
 # on unit_test_framework
 ########################################################################
+#option(ENABLE_TESTING "Enable test builds" ON)
+set(Boost_DEBUG ON)
+#set(BOOST_ROOT "C:/Users/cfelber/.conan2/p/booste26a0b2fcc54e/p")
+#set(BOOST_LIBRARYDIR "C:/Users/cfelber/.conan2/p/booste26a0b2fcc54e/p/lib")
+#set(BOOST_INCLUDEDIR "C:/Users/cfelber/.conan2/p/booste26a0b2fcc54e/p/include")
+
+#set(Boost_LIBRARY_DIR "C:/Users/cfelber/.conan2/p/booste26a0b2fcc54e/p/lib")
+#set(Boost_LIBRARY_DIRS "C:/Users/cfelber/.conan2/p/booste26a0b2fcc54e/p/lib")
+#set(Boost_INCLUDE_DIR "C:/Users/cfelber/.conan2/p/booste26a0b2fcc54e/p/include")
+
 include(GrBoost)
+
+#find_library(Boost_UNIT_TEST_FRAMEWORK_LIBRARY
+#  NAMES boost_unit_test_framework libboost_unit_test_framework
+#  PATHS ${Boost_LIBRARY_DIRS}
+#  NO_DEFAULT_PATH
+#)
+#find_package(Boost
+#  REQUIRED
+#  #COMPONENTS unit_test_framework
+#  COMPONENTS date_time program_options system regex thread atomic chrono unit_test_framework
+#)
+#if(Boost_FOUND)
+#    include_directories(${Boost_INCLUDE_DIRS}) 
+#    add_executable(progname file1.cxx file2.cxx) 
+#    target_link_libraries(progname ${Boost_LIBRARIES})
+#endif()
+
+message(STATUS "Boost detection debug info:")
+message(STATUS "  Boost_FOUND: ${Boost_FOUND}")
+message(STATUS "  Boost_VERSION: ${Boost_VERSION}")
+message(STATUS "  Boost_DIR: ${Boost_DIR}")
+message(STATUS "  BOOST_ROOT: ${BOOST_ROOT}")
+message(STATUS "  Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
+message(STATUS "  Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+message(STATUS "  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
+message(STATUS "  Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
+message(STATUS "  BOOST_INCLUDE_LIBRARIES: ${BOOST_INCLUDE_LIBRARIES}")
+message(STATUS "  Boost_LIBRARIES: ${Boost_LIBRARIES}")
+message(STATUS "  Boost_UNIT_TEST_FRAMEWORK_LIBRARY: ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}")
+message(STATUS "  Boost_UNIT_TEST_FRAMEWORK_FOUND: ${Boost_UNIT_TEST_FRAMEWORK_FOUND}")
+
+
+#if(Boost_UNIT_TEST_FRAMEWORK_LIBRARY)
+#    set(Boost_UNIT_TEST_FRAMEWORK_FOUND TRUE)
+#endif()
+
 gr_register_component(
     NAME "testing-support"
     VAR ENABLE_TESTING
     REQUIRED_TPLS Boost_UNIT_TEST_FRAMEWORK_FOUND
 )
+message("---------2 Boost_UNIT_TEST_FRAMEWORK_FOUND = ${Boost_UNIT_TEST_FRAMEWORK_FOUND}")
 
 # Enable generation of compile_commands.json for code completion engines
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

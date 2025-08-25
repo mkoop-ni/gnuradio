@@ -42,6 +42,7 @@ function(GR_REGISTER_COMPONENT)
     set(SINGLE_OPT NAME VAR)
     set(MULTI_OPT REQUIRED_COMPONENTS REQUIRED_TPLS)
     cmake_parse_arguments(GR_COMPONENT "${OPTIONS}" "${SINGLE_OPT}" "${MULTI_OPT}" ${ARGN})
+    message("+++ GR_COMPONENT ${OPTIONS} ${SINGLE_OPT} ${MULTI_OPT} ${ARGN}")
     include(CMakeDependentOption)
     define_property(
 	    GLOBAL 
