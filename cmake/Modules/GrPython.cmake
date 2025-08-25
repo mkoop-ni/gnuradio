@@ -461,6 +461,8 @@ function(GR_PYTHON_INSTALL)
 
         gr_unique_target("pygen" ${python_install_gen_targets})
 
+        gen_py_gr_shell()
+
     endif()
 
 endfunction(GR_PYTHON_INSTALL)
@@ -478,6 +480,18 @@ for src, gen in zip(srcs, gens):
     py_compile.compile(file=src, cfile=gen, doraise=True)
 ")
 
+function(gen_py_gr_shell)
+    message(STATUS "Creating install rules for gnuradio-shell.bat")
+    configure_file(
+        ${CMAKE_SOURCE_DIR}/release/resources/py_gr_shell.bat.in
+        ${CMAKE_BINARY_DIR}/gnuradio-shell.bat
+        @ONLY
+    )
+    install(PROGRAMS
+        ${CMAKE_BINARY_DIR}/gnuradio-shell.bat
+        DESTINATION ${GR_RUNTIME_DIR}
+    )
+endfunction()
 
 function(gen_py_launcher)
     set(MULTI_ARGS MODULES)
