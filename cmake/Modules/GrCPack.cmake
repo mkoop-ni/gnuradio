@@ -71,14 +71,15 @@ VIAddVersionKey /LANG=0 \\\"FileVersion\\\" \\\"${GR_VERSION_MAJOR}.${GR_VERSION
   #of CPackSourceConfig.cmake
   set(CPACK_NSIS_CREATE_ICONS_EXTRA
     "${CPACK_NSIS_CREATE_ICONS_EXTRA}
-     CreateShortCut \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\\$STARTMENU_FOLDER2.lnk\\\" \\\"\$INSTDIR\\\\grc.exe\\\"
-     CreateShortCut \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Documentation2.lnk\\\" \\\"https://wiki.gnuradio.org/\\\"
-     CreateShortCut \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Web Site2.lnk\\\" \\\"https://gnuradio.org\\\""
+     CreateShortCut \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Companion.lnk\\\" \\\"\$INSTDIR\\\\bin\\\\gnuradio-companion.bat\\\"
+     CreateShortCut \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Command Prompt.lnk\\\" \\\"\$INSTDIR\\\\bin\\\\gnuradio-prompt.bat\\\"
+     CreateShortCut \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Documentation.lnk\\\" \\\"https://wiki.gnuradio.org/\\\""
   )
   set(CPACK_NSIS_DELETE_ICONS_EXTRA
     "${CPACK_NSIS_DELETE_ICONS_EXTRA}
-      Delete \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\\$STARTMENU_FOLDER2.lnk\\\"
-      Delete \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Documentation2.lnk\\\""
+      Delete \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Companion.lnk\\\"
+      Delete \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Command Prompt.lnk\\\"
+      Delete \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Documentation.lnk\\\""
   )
 
 endif()
