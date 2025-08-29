@@ -91,6 +91,7 @@ if(ENABLE_GR_UHD)
 
     if(WIN32 AND GR_BUILD_INSTALLER)
        REGISTER_EXTERNAL_PYTHON_COMPONENT(uhd)
+       REGISTER_EXTERNAL_PYTHON_COMPONENT(requests)
 
        # consider authoring a CPACK_EXTRA_INSTALL_COMMAND to define UHD_PKG_PATH environment variable
 
