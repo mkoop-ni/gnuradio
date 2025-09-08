@@ -38,6 +38,24 @@ endmacro()
 
 if(GIT_FOUND AND EXISTS ${PROJECT_SOURCE_DIR}/.git)
     message(STATUS "Extracting version information from git describe...")
+
+    # Handle Git's safe directory feature to avoid "dubious ownership" errors
+    # This is common in CI environments and containers
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} config --global --get safe.directory
+        OUTPUT_VARIABLE GIT_SAFE_DIRS
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
+    # Check if current directory is already in safe directories
+    string(FIND "${GIT_SAFE_DIRS}" "${PROJECT_SOURCE_DIR}" SAFE_DIR_FOUND)
+    if(SAFE_DIR_FOUND EQUAL -1)
+        message(STATUS "Adding ${PROJECT_SOURCE_DIR} to Git safe directories")
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} config --global --add safe.directory "${PROJECT_SOURCE_DIR}"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+    endif()
+
     # try to get long description with tag followed by hash
     execute_process(
         COMMAND ${GIT_EXECUTABLE} describe --abbrev=8 --long
