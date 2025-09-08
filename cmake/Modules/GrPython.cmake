@@ -512,8 +512,10 @@ maker.make('${pyfile_name}')";
         endforeach(pyfile)
 
         gr_unique_target("pygen" ${python_install_gen_targets})
-
-        gen_py_gr_prompt()
+        
+        if(WIN32)
+            gen_py_gr_prompt()
+        endif()
 
     endif()
 
