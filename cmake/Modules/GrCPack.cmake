@@ -77,9 +77,9 @@ VIAddVersionKey /LANG=0 \\\"FileVersion\\\" \\\"${GR_VERSION_MAJOR}.${GR_VERSION
   )
   set(CPACK_NSIS_DELETE_ICONS_EXTRA
     "${CPACK_NSIS_DELETE_ICONS_EXTRA}
-      Delete \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Companion.lnk\\\"
-      Delete \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Command Prompt.lnk\\\"
-      Delete \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Documentation.lnk\\\""
+      Delete \\\"\$SMPROGRAMS\\\\\$START_MENU\\\\GNU Radio Companion.lnk\\\"
+      Delete \\\"\$SMPROGRAMS\\\\\$START_MENU\\\\GNU Radio Command Prompt.lnk\\\"
+      Delete \\\"\$SMPROGRAMS\\\\\$START_MENU\\\\GNU Radio Documentation.lnk\\\""
   )
 
   # explicitly set version for installer file name, since we would like to have the git hash in the file name
