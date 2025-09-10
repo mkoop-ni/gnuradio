@@ -71,15 +71,15 @@ VIAddVersionKey /LANG=0 \\\"FileVersion\\\" \\\"${GR_VERSION_MAJOR}.${GR_VERSION
   #of CPackSourceConfig.cmake
   set(CPACK_NSIS_CREATE_ICONS_EXTRA
     "${CPACK_NSIS_CREATE_ICONS_EXTRA}
-     CreateShortCut \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Companion.lnk\\\" \\\"\$INSTDIR\\\\bin\\\\gnuradio-companion.bat\\\"
-     CreateShortCut \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Command Prompt.lnk\\\" \\\"\$INSTDIR\\\\bin\\\\gnuradio-prompt.bat\\\"
-     CreateShortCut \\\"\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\GNU Radio Documentation.lnk\\\" \\\"https://wiki.gnuradio.org/\\\""
+     CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\GNU Radio Companion.lnk' '\\\%windir\\\%\\\\system32\\\\cmd.exe' '\\\/C \\\"$INSTDIR\\\\bin\\\\gnuradio-companion.bat\\\"'
+     CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\GNU Radio Command Prompt.lnk' '\\\%windir\\\%\\\\system32\\\\cmd.exe' '\\\/C \\\"$INSTDIR\\\\bin\\\\gnuradio-prompt.bat\\\"'
+     CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\GNU Radio Documentation.lnk' 'https://wiki.gnuradio.org/'"
   )
   set(CPACK_NSIS_DELETE_ICONS_EXTRA
     "${CPACK_NSIS_DELETE_ICONS_EXTRA}
-      Delete \\\"\$SMPROGRAMS\\\\\$START_MENU\\\\GNU Radio Companion.lnk\\\"
-      Delete \\\"\$SMPROGRAMS\\\\\$START_MENU\\\\GNU Radio Command Prompt.lnk\\\"
-      Delete \\\"\$SMPROGRAMS\\\\\$START_MENU\\\\GNU Radio Documentation.lnk\\\""
+      Delete '$SMPROGRAMS\\\\$START_MENU\\\\GNU Radio Companion.lnk'
+      Delete '$SMPROGRAMS\\\\$START_MENU\\\\GNU Radio Command Prompt.lnk'
+      Delete '$SMPROGRAMS\\\\$START_MENU\\\\GNU Radio Documentation.lnk'"
   )
 
   # explicitly set version for installer file name, since we would like to have the git hash in the file name
