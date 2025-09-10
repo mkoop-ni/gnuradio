@@ -65,7 +65,16 @@ VIAddVersionKey /LANG=0 \\\"FileDescription\\\" \\\"${CPACK_PACKAGE_NAME} Instal
 VIAddVersionKey /LANG=0 \\\"FileVersion\\\" \\\"${GR_VERSION_MAJOR}.${GR_VERSION_API}.${GR_VERSION_MINOR}.${GR_VERSION_MAINT}\\\""
 )
 
-  #CPACK_PACKAGE_INSTALL_DIRECTORY -- Variable not defined
+  # explicitly set version for installer GUI, and start menu folder
+  set(CPACK_NSIS_DISPLAY_NAME 
+    "${CPACK_PACKAGE_NAME}-${GR_VERSION_MAJOR}.${GR_VERSION_API}.${GR_VERSION_MINOR}.${GR_VERSION_MAINT}-${GR_GIT_HASH}"
+  )
+  # explicitly set version for installer file name, since we would like to have the git hash in the file name
+  set(CPACK_PACKAGE_FILE_NAME 
+    "${CPACK_PACKAGE_NAME}-${GR_VERSION_MAJOR}.${GR_VERSION_API}.${GR_VERSION_MINOR}.${GR_VERSION_MAINT}-${GR_GIT_HASH}-${CMAKE_SYSTEM_PROCESSOR}"
+  )
+
+#CPACK_PACKAGE_INSTALL_DIRECTORY -- Variable not defined
   #Variables starting with '$' but do not use {} are expanded by NSIS at build time.
   #Variables starting with '$' and using {} are expanded by CMAKE during generation
   #of CPackSourceConfig.cmake
@@ -80,11 +89,6 @@ VIAddVersionKey /LANG=0 \\\"FileVersion\\\" \\\"${GR_VERSION_MAJOR}.${GR_VERSION
       Delete '$SMPROGRAMS\\\\$START_MENU\\\\GNU Radio Companion.lnk'
       Delete '$SMPROGRAMS\\\\$START_MENU\\\\GNU Radio Command Prompt.lnk'
       Delete '$SMPROGRAMS\\\\$START_MENU\\\\GNU Radio Documentation.lnk'"
-  )
-
-  # explicitly set version for installer file name, since we would like to have the git hash in the file name
-  set(CPACK_PACKAGE_FILE_NAME 
-    "${CPACK_PACKAGE_NAME}-${GR_VERSION_MAJOR}.${GR_VERSION_API}.${GR_VERSION_MINOR}.${GR_VERSION_MAINT}-${GR_GIT_HASH}-${CMAKE_SYSTEM_PROCESSOR}"
   )
 
 endif()
