@@ -91,6 +91,11 @@ if(ENABLE_GR_UHD)
 
     if(WIN32 AND GR_BUILD_INSTALLER)
        REGISTER_EXTERNAL_PYTHON_COMPONENT(uhd)
+       # register python dependencies of in order to run uhd_images_downloader.py
+       REGISTER_EXTERNAL_PYTHON_COMPONENT(certifi)
+       REGISTER_EXTERNAL_PYTHON_COMPONENT(charset_normalizer)
+       REGISTER_EXTERNAL_PYTHON_COMPONENT(idna)
+       REGISTER_EXTERNAL_PYTHON_COMPONENT(urllib3)
        REGISTER_EXTERNAL_PYTHON_COMPONENT(requests)
 
        # consider authoring a CPACK_EXTRA_INSTALL_COMMAND to define UHD_PKG_PATH environment variable
