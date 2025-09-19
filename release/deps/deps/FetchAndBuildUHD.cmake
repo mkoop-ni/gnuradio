@@ -2,6 +2,7 @@ set(UHD_VERSION 4.9.0.0) # version is also used in custom install command
 set(UHD_URL https://github.com/EttusResearch/uhd/archive/refs/tags/v${UHD_VERSION}.zip)
 set(UHD_HASH 23DEAD8C3A2C6A57C169853E96D09360494824EFECAD2365CFBB1D2A5D2FA486)
 set(UHD_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/uhd)
+
 # Define some optional CMAKE_ARGS
 # Solution has the drawback of generating cmake warnings when optional
 # arguments evaluate to empty string.
