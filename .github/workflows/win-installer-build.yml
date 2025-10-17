@@ -567,7 +567,8 @@ jobs:
         cd installation-archive.squash
         mkdir %RUNNER_WORKSPACE%\cmake-backup
         robocopy /MIR /NJH /NFL /NDL /MT /W:5 /R:4 "%GITHUB_WORKSPACE%\gnuradio\build" "%RUNNER_WORKSPACE%\cmake-backup" ^
-            /XD %GITHUB_WORKSPACE%\gnuradio\build\_CPack_Packages" /XF "%GITHUB_WORKSPACE%\gnuradio\build"\*-AMD64.exe
+            /XD "%GITHUB_WORKSPACE%\gnuradio\build\_CPack_Packages"
+        del /Q "%RUNNER_WORKSPACE%\cmake-backup\*-AMD64.exe"
         tar -czf cmake-backup.gzip -C "%RUNNER_WORKSPACE%\cmake-backup" .
         robocopy /NJH /NDL /MT /W:5 /R:4 "%GITHUB_WORKSPACE%\gnuradio\build\_CPack_Packages\win64\NSIS" .
         tar -czf gnuradio.gzip -C "%PROGRAMFILES%\GNU Radio" .
