@@ -137,7 +137,6 @@ target_link_libraries(
         MPLib::mplib
     PRIVATE
         Boost::program_options
-        Boost::system
         libunwind::libunwind)
 
 # Address linker issues with std::filesystem on Centos 8 and Debian
