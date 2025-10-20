@@ -117,11 +117,13 @@ if(ENABLE_GR_QTGUI)
             themes/projector.qss
             DESTINATION ${GR_THEMES_DIR})
 
-    if(WIN32)
-        install(DIRECTORY ${qt_Qt5_QWindowsIntegrationPlugin_LIB_DIRS_RELEASE}
-                DESTINATION ${REL_PYTHON_INSTALL_PATH})
-    elseif(APPLE)
-        install(DIRECTORY ${Qt5_DIR}/plugins/platforms DESTINATION ${REL_PYTHON_INSTALL_PATH}/python.framework/)
-    endif()
+    if(GR_BUILD_INSTALLER)
+        if(WIN32)
+            install(DIRECTORY ${qt_Qt5_QWindowsIntegrationPlugin_LIB_DIRS_RELEASE}
+                    DESTINATION ${REL_PYTHON_INSTALL_PATH})
+        elseif(APPLE)
+            install(DIRECTORY ${Qt5_DIR}/plugins/platforms DESTINATION ${REL_PYTHON_INSTALL_PATH}/python.framework/)
+        endif()
+    endif(GR_BUILD_INSTALLER)
 
 endif(ENABLE_GR_QTGUI)
