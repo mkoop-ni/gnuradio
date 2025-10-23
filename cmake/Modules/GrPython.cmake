@@ -437,7 +437,7 @@ function(GR_PYTHON_INSTALL)
             get_filename_component(pyfile_name ${pyfile} NAME)
             get_filename_component(pyfile ${pyfile} ABSOLUTE)
             string(REPLACE "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}" pyexefile
-                           "${pyfile}.py")
+                           "${pyfile}.exe")
             list(APPEND python_install_gen_targets ${pyexefile})
 
             get_filename_component(pyexefile_path ${pyexefile} PATH)
