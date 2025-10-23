@@ -443,6 +443,7 @@ function(GR_PYTHON_INSTALL)
             get_filename_component(pyexefile_path ${pyexefile} PATH)
             file(MAKE_DIRECTORY ${pyexefile_path})
 
+            #[[ Commented out Windows wrapper generation
             if(WIN32)
                 # check the python file to see if we should wrap it
                 execute_process(
@@ -494,6 +495,7 @@ maker.make('${pyfile_name}')"
                     )
                 endif()
             endif()
+            ]]
 
             add_custom_command(
                 OUTPUT ${pyexefile}
