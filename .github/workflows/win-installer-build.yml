@@ -565,8 +565,6 @@ jobs:
       run: |
         call "%msbuild_vcvars64%"
         SET PATH=%GR_INSTALL_DIR%\bin;%GR_INSTALL_DIR%\python%PY_VENV_VERSION%;%GR_INSTALL_DIR%\python%PY_VENV_VERSION%\Scripts;%PATH%
-        @echo Install pytests on installer environment
-        "%GR_INSTALL_DIR%\python%PY_VENV_VERSION%\python.exe" -m pip install pytest
         cd %GR_BUILD_DIR%
         @echo Run Ninja tests on installer environment
         Ninja test
