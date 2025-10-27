@@ -132,7 +132,7 @@ string(REPLACE "\n" " \\n" COMPILER_INFO ${COMPILER_INFO})
 ########################################################################
 # Install directories
 ########################################################################
-include(GrPlatform) # define LIB_SUFFIX
+include(GNUInstallDirs) # define LIB_SUFFIX
 
 # Install our Cmake modules into $prefix/lib/cmake/gnuradio
 # See "Package Configuration Files" on page:
