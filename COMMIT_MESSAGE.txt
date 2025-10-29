@@ -1,37 +1,17 @@
 cmake: Add multi-package-manager support for Conan and native builds
 
-This commit introduces toolchain detection to support both Conan and
-native package managers (MinGW, vcpkg, system packages), resolving
-build configuration issues when using different C++ package management
-workflows on Windows and Linux.
+Introduces toolchain detection to support both Conan and native package
+managers (MinGW, vcpkg, system packages), resolving build configuration
+issues across Windows and Linux.
 
-Key changes:
+Changes:
+- GrPython.cmake: Auto-detect Conan toolchain via CMAKE_PREFIX_PATH and
+  set Python paths dynamically (REL_PYTHON_INSTALL_PATH/LIB_PATH)
+- setup-gtk.cmake: Use dynamic paths, default GTK_BIN_DIR to install prefix
+- gr-fft/CMakeLists.txt: Handle FFTW3/FFTW3f package name variations
+- gr-qtgui/CMakeLists.txt: Handle qwt/Qwt package name variations
 
-1. GrPython.cmake:
-   - Add automatic Conan toolchain detection via CMAKE_PREFIX_PATH
-   - Introduce REL_PYTHON_INSTALL_PATH and REL_PYTHON_INSTALL_LIB_PATH
-     variables that adapt to the detected package manager
-   - For Conan: use python<version>/ and python<version>/Lib/site-packages
-   - For native builds: use bin/ and lib/python<version>/site-packages
-   - Make GR_PYTHON_DIR configurable and toolchain-aware
-
-2. setup-gtk.cmake:
-   - Update GTK paths to use the new REL_PYTHON_INSTALL_LIB_PATH variable
-   - Set default GTK_BIN_DIR to CMAKE_INSTALL_PREFIX/bin instead of
-     hardcoded C:/gtk-build path
-   - Add diagnostic messages for path configuration
-
-3. gr-fft/CMakeLists.txt:
-   - Fix FFTW package name case sensitivity (FFTW3f vs FFTW3)
-   - Conan builds use FFTW3, native builds use FFTW3f
-
-4. gr-qtgui/CMakeLists.txt:
-   - Handle QWT package name differences between package managers
-   - Conan uses 'qwt', native builds use 'Qwt'
-   - Support both package name variants
-
-This change enables GNU Radio to build correctly across different
-development environments without manual CMake configuration adjustments,
-improving the cross-platform and cross-toolchain build experience.
+Enables GNU Radio builds across different package managers without
+manual CMake configuration adjustments.
 
 Signed-off-by: Marian Koop <marian.koop@emerson.com>
