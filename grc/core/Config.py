@@ -4,9 +4,8 @@ This file is part of GNU Radio
 SPDX-License-Identifier: GPL-2.0-or-later
 """
 
-
 import os
-from os.path import expanduser, normpath, expandvars, exists
+from os.path import expanduser, normpath, expandvars, exists, join
 from collections import OrderedDict
 
 from ..main import get_state_directory, get_config_file_path
@@ -18,11 +17,10 @@ class Config(object):
     license = __doc__.strip()
     website = 'https://www.gnuradio.org/'
 
-    hier_block_lib_dir = os.environ.get('GRC_HIER_PATH', get_state_directory())
-
-    def __init__(self, version, version_parts=None, name=None, prefs=None):
+    def __init__(self, version, install_prefix, version_parts=None, name=None, prefs=None):
         self._gr_prefs = prefs if prefs else DummyPrefs()
         self.version = version
+        self.install_prefix = install_prefix
         self.version_parts = version_parts or version[1:].split(
             '-', 1)[0].split('.')[:3]
         self.enabled_components = self._gr_prefs.get_string(
@@ -32,12 +30,17 @@ class Config(object):
 
     @property
     def block_paths(self):
-        paths_sources = (
-            self.hier_block_lib_dir,
+        paths_sources = [
+            os.environ.get('GRC_HIER_PATH', ''),
             os.environ.get('GRC_BLOCKS_PATH', ''),
+            get_state_directory(),
             self._gr_prefs.get_string('grc', 'local_blocks_path', ''),
-            self._gr_prefs.get_string('grc', 'global_blocks_path', ''),
-        )
+            normpath(join(self.install_prefix, os.environ.get('GRC_BLOCKS_DIR', 'share/gnuradio/grc/blocks'))),
+            os.environ.get('GRC_HIER_PATH_POST', ''),
+            os.environ.get('GRC_BLOCKS_PATH_POST', '')
+        ]
+        if self.install_prefix == "/usr":
+            paths_sources.append(normpath(join("/usr/local", os.environ.get('GRC_BLOCKS_DIR', 'share/gnuradio/grc/blocks'))))
 
         collected_paths = sum((paths.split(os.pathsep)
                                for paths in paths_sources), [])
@@ -52,14 +55,17 @@ class Config(object):
 
     @property
     def example_paths(self):
-        return [self._gr_prefs.get_string('grc', 'examples_path', '')]
+        return [
+            self._gr_prefs.get_string('grc', 'examples_path', ''),
+            normpath(join(self.install_prefix, os.environ.get('GRC_EXAMPLES_DIR', 'share/gnuradio/examples'))),
+        ]
 
     @property
     def default_flow_graph(self):
         user_default = (
             os.environ.get('GRC_DEFAULT_FLOW_GRAPH') or
             self._gr_prefs.get_string('grc', 'default_flow_graph', '') or
-            os.path.join(self.hier_block_lib_dir, 'default_flow_graph.grc')
+            os.path.join(get_state_directory(), 'default_flow_graph.grc')
         )
         return user_default if exists(user_default) else Constants.DEFAULT_FLOW_GRAPH
 
