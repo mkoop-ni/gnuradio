@@ -466,23 +466,19 @@ sys.exit(0 if match else 1)"
                     set(pywrapperfile "${pywrapperfile_dir}/${pywrapperfile_name}")
                     list(APPEND python_install_gen_targets ${pywrapperfile})
 
-                    # For Windows wrappers, we need a proper relative path to the Python executable
-                    if(GR_BUILD_INSTALLER)
-                        set(wrapper_python_path "../${REL_PYTHON_INSTALL_PATH}/python.exe")
-                    else()
-                        # For development builds, calculate relative path from bin to Python executable
-                        file(RELATIVE_PATH wrapper_python_path
-                             "${CMAKE_INSTALL_PREFIX}/${GR_PYTHON_INSTALL_DESTINATION}"
-                             "${PYTHON_EXECUTABLE}")
-                        set(wrapper_python_path "${wrapper_python_path}")
-                    endif()
-
+                    # Define python path, that works by default on linux os.
+                    # On Windows the same default is used via the utilized 
+                    # pip._vendor.distlib.scripts.ScriptMaker class (as of pip 26.0)
+                    # and uses pre-build launcher executables that search in the
+                    # system path (i.e. PATH environment variable) for python.exe.
+                    # (sourced from https://bitbucket.org/vinay.sajip/simple_launcher/src/master)
+                    set(pywrapperfile_shebang_line "/usr/bin/env python")
                     add_custom_command(
                         OUTPUT ${pywrapperfile} DEPENDS ${pyfile}
                         COMMAND ${PYTHON_EXECUTABLE} -c
                         "from pip._vendor.distlib.scripts import ScriptMaker;
 maker = ScriptMaker('${pyfile_dir}', '${pywrapperfile_dir}', add_launchers=True);
-maker.executable = '${wrapper_python_path}';
+maker.executable = '${pywrapperfile_shebang_line}';
 maker.make('${pyfile_name}')"
                         COMMENT "Wrapping ${pyfile_name}"
                         VERBATIM

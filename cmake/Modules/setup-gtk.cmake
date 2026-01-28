@@ -13,8 +13,15 @@ if(NOT GTK_BIN_DIR)
 endif()
 get_filename_component(GTK_ROOT ${GTK_BIN_DIR} DIRECTORY)
 #set(GTK_REL_BIN_DIR "../Python${PYTHON_SHORT_VER}/Lib/site-packages/gi/gtk/bin")
+# path defined relative to GNURadio_BINARY_DIR.
 set(GTK_REL_BIN_DIR "../${REL_PYTHON_INSTALL_LIB_PATH}/gi/gtk/bin")
 if(WIN32)
-    set(DLL_IMPORT_GTK "os.add_dll_directory(os.path.abspath(\"${GTK_REL_BIN_DIR}\"))")
+    # Variable DLL_IMPORT_GTK gets injected into pylauncher scripts,
+    # as @DLL_IMPORT_GTK@ to include the GTK binary folder into the
+    # dll search directory list at runtime.
+    set(DLL_IMPORT_GTK "os.add_dll_directory(os.path.normpath(os.path.join(os.path.dirname(__file__),\"${GTK_REL_BIN_DIR}\")))")
+    # Variable CMAKE_IMPORT_GTK is used by cmake to verify GTK 
+    # binaries during dependency detection.
+    # String value requires trailing ';'.
     set(CMAKE_IMPORT_GTK "import os;os.add_dll_directory(\"${GTK_BIN_DIR}\");")
 endif()
