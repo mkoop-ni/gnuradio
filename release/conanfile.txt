@@ -22,3 +22,5 @@ cmake_layout
 [options]
 qwt*:shared=True
 qt*:shared=True
+#qt*:modules=qtbase,qtdeclarative,qttools
+qt*:with_pq=False
